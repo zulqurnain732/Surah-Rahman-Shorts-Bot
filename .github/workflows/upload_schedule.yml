@@ -1,10 +1,6 @@
-name: Surah Rahman Shorts Auto Flow
+name: YouTube Auto Upload Flow
 
 on:
-  push:
-    paths:
-      - 'tracker.json'
-      - 'main.py'
   schedule:
     # 4:30 AM PKT = 23:30 UTC | 4:30 PM PKT = 11:30 UTC
     - cron: '30 11,23 * * *'
@@ -30,7 +26,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
 
-      - name: Install Python Dependencies
+      - name: Install Python Packages
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
@@ -46,4 +42,4 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add tracker.json
-          git diff --staged --quiet || (git commit -m "Auto: Updated upload count" && git push)
+          git diff --staged --quiet || (git commit -m "Auto: Update tracker progress" && git push)
