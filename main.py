@@ -27,6 +27,7 @@ def download_source():
     cmd = [
         "yt-dlp",
         "--no-playlist",
+        "--extractor-args", "youtube:player_client=android,web",
         "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
         "-o", output_template
     ]
@@ -34,7 +35,9 @@ def download_source():
         cmd.extend(["--cookies", COOKIES_FILE])
     cmd.append(VIDEO_URL)
     
+    print("Downloading video with yt-dlp...")
     subprocess.run(cmd, check=True)
+    
     for f in os.listdir("."):
         if f.startswith("source_video."):
             return f
@@ -63,7 +66,7 @@ def make_short(input_file, used_starts):
         attempts += 1
         
     out_file = "final_short.mp4"
-    print(f"Cutting 9:16 Short from {start_time}s...")
+    print(f"Cutting 9:16 Short from {start_time}s ({clip_dur}s duration)...")
 
     # 9:16 Portrait crop for Shorts
     vf = "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920"
