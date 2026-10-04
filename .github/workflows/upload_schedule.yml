@@ -1,0 +1,49 @@
+name: Surah Rahman Shorts Auto Flow
+
+on:
+  push:
+    paths:
+      - 'tracker.json'
+      - 'main.py'
+  schedule:
+    # 4:30 AM PKT = 23:30 UTC | 4:30 PM PKT = 11:30 UTC
+    - cron: '30 11,23 * * *'
+  workflow_dispatch:
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Script
+        env:
+          YOUTUBE_TOKEN_JSON: ${{ secrets.YOUTUBE_TOKEN_JSON }}
+        run: |
+          python main.py
+
+      - name: Commit & Push Updated Tracker
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add tracker.json
+          git diff --staged --quiet || (git commit -m "Auto: Updated upload count" && git push)
