@@ -9,7 +9,6 @@ from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 
 TRACKER_FILE = "tracker.json"
-RELEASE_VIDEO_URL = "https://github.com/zulqurnain732/Surah-Rahman-Shorts-Bot/releases/download/v1.0/source_video.mp4"
 
 def load_tracker():
     if not os.path.exists(TRACKER_FILE):
@@ -24,18 +23,24 @@ def save_tracker(data):
 def download_source():
     target_file = "source_video.mp4"
     if os.path.exists(target_file) and os.path.getsize(target_file) > 1000000:
-        print("Source video already exists locally.")
+        print("Source video pehle se maujood hai.")
         return target_file
 
-    print("Downloading source video from GitHub Release...")
-    cmd = ["curl", "-L", "-o", target_file, RELEASE_VIDEO_URL]
+    print("Downloading video from Release via GitHub CLI...")
+    # GitHub CLI se direct download (private aur public dono repos par authenticated download)
+    cmd = [
+        "gh", "release", "download", "v1.0",
+        "--pattern", "*.mp4",
+        "--output", target_file,
+        "--clobber"
+    ]
     subprocess.run(cmd, check=True)
 
     if os.path.exists(target_file) and os.path.getsize(target_file) > 1000000:
-        print("Download complete and verified.")
+        print("Download verified successfully.")
         return target_file
 
-    raise FileNotFoundError("Video download verify nahi ho saki. Release URL check karein.")
+    raise FileNotFoundError("Video download verify nahi ho saki. Release tag check karein.")
 
 def get_duration(file_path):
     cmd = [
