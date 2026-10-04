@@ -2,8 +2,12 @@ name: YouTube Auto Upload Flow
 
 on:
   schedule:
+    # 4:30 AM PKT = 23:30 UTC | 4:30 PM PKT = 11:30 UTC
     - cron: '30 11,23 * * *'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   upload:
@@ -36,11 +40,16 @@ jobs:
           pip install -r requirements.txt
 
       - name: Create Cookies File
-        if: env.YOUTUBE_COOKIES != ''
-        run: |
-          echo "${{ secrets.YOUTUBE_COOKIES }}" > cookies.txt
         env:
           YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
+        run: |
+          if [ -n "$YOUTUBE_COOKIES" ]; then
+            printf "%s\n" "$YOUTUBE_COOKIES" > cookies.txt
+            echo "cookies.txt ready."
+          else
+            touch cookies.txt
+            echo "No cookies secret found, skipping."
+          fi
 
       - name: Run Script
         env:
