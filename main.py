@@ -8,9 +8,8 @@ from googleapiclient.http import MediaFileUpload
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 
-VIDEO_URL = "https://www.youtube.com/watch?v=Fd0Dipj3E84"
 TRACKER_FILE = "tracker.json"
-COOKIES_FILE = "cookies.txt"
+RELEASE_VIDEO_URL = "https://github.com/zulqurnain732/Surah-Rahman-Shorts-Bot/releases/download/v1.0/source_video.mp4"
 
 def load_tracker():
     if not os.path.exists(TRACKER_FILE):
@@ -23,25 +22,20 @@ def save_tracker(data):
         json.dump(data, f, indent=2)
 
 def download_source():
-    output_template = "source_video.%(ext)s"
-    cmd = [
-        "yt-dlp",
-        "--no-playlist",
-        "--extractor-args", "youtube:player_client=android,web",
-        "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
-        "-o", output_template
-    ]
-    if os.path.exists(COOKIES_FILE) and os.path.getsize(COOKIES_FILE) > 0:
-        cmd.extend(["--cookies", COOKIES_FILE])
-    cmd.append(VIDEO_URL)
-    
-    print("Downloading video with yt-dlp...")
+    target_file = "source_video.mp4"
+    if os.path.exists(target_file) and os.path.getsize(target_file) > 1000000:
+        print("Source video already exists locally.")
+        return target_file
+
+    print("Downloading source video from GitHub Release...")
+    cmd = ["curl", "-L", "-o", target_file, RELEASE_VIDEO_URL]
     subprocess.run(cmd, check=True)
-    
-    for f in os.listdir("."):
-        if f.startswith("source_video."):
-            return f
-    raise FileNotFoundError("Video download nahi ho saki.")
+
+    if os.path.exists(target_file) and os.path.getsize(target_file) > 1000000:
+        print("Download complete and verified.")
+        return target_file
+
+    raise FileNotFoundError("Video download verify nahi ho saki. Release URL check karein.")
 
 def get_duration(file_path):
     cmd = [
