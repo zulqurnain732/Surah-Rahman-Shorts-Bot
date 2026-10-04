@@ -2,7 +2,6 @@ name: YouTube Auto Upload Flow
 
 on:
   schedule:
-    # 4:30 AM PKT = 23:30 UTC | 4:30 PM PKT = 11:30 UTC
     - cron: '30 11,23 * * *'
   workflow_dispatch:
 
@@ -19,7 +18,12 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
       - name: Install FFmpeg
         run: |
@@ -30,6 +34,13 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Create Cookies File
+        if: env.YOUTUBE_COOKIES != ''
+        run: |
+          echo "${{ secrets.YOUTUBE_COOKIES }}" > cookies.txt
+        env:
+          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
 
       - name: Run Script
         env:
